@@ -9,10 +9,17 @@ before_script:
 - builddate=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 - buildrev=$(git rev-parse --short HEAD)
 script:
-- docker build --build-arg VCS_REF=$buildrev --build-arg BUILD_DATE=$builddate -t $repo:latest -f Dockerfile .
-- socatver=$(docker run -t --rm $repo:latest -V | grep 'socat version ' | cut -d' ' -f3)
+- docker build --build-arg VCS_REF=$buildrev --build-arg BUILD_DATE=$builddate -t
+  $repo:latest -f Dockerfile .
+- socatver=$(docker run -t --rm $repo:latest -V | grep 'socat version ' | cut -d'
+  ' -f3)
 after_success:
 - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - docker push $repo:latest
-- vertags=$(ruby -e "ver=ARGV.first.split('/').last; (0..2).each {|i| puts ver.split('.')[0..i].join('.')}; puts ver;" $socatver)
-- for ver in $vertags; do docker tag $repo:latest $repo:$ver; docker push $repo:$ver; done
+- vertags=$(ruby -e "ver=ARGV.first.split('/').last; (0..2).each {|i| puts ver.split('.')[0..i].join('.')};
+  puts ver;" $socatver)
+- for ver in $vertags; do docker tag $repo:latest $repo:$ver; docker push $repo:$ver;
+  done
+notifications:
+  slack:
+    secure: PkzGrkMSrHo7thWqYlQLY5UK3II7rLV0gQLmCIXN8w/37ZeZAhgGdgjPCammbez5Ne6+SKAgl8WQ/CJ39tN/B5UWiHgdfj9NflXD+k3ngoRzpXgvD5kg1xW0EaclGbSWTR7UXEHCdjtIDxepnr7Ha1NyIAbpUCRkvCYsz/9bI5tAaghweHt5JytFa/ANZRS7kJZqZFKsOmAa8Bm1R67fo30XRCTjVgESMODsJ/xno2MgTFR9RmKcYd89tBArTVVYqlZR69dgSx9QQW+Yvmgvg+7qYKlrKcCCbKNfR3q5d3AsNshruX3DLLS+ugdlyHczGNTSeRBn4s/vqv03OhkeexMKD3cvYefs+UBv9GG8bE5Jc/sq00TPgfH62ZAf18zfQXPcRdn6syvrb5C8Pb7moanlGIXfMaKT0G/KebVGXlRgeZEl66sYZxbMW44SdXfl3EEVkjsvAXo4nrSwbqoq/7y9xvIBuamKzUVgojLCo/3L0cooZk2FnUZCfcb/JdWr3JnvBoTj6fuyQwJgHyfFOLE3+XLnXbwNq8PdTOrs/gmYVpVBm5/l9mo1Y2QJcXS1TzrlbTlT+ZCtBDlnFyzatxgqS3MM022yoSuz8oGP3SRzp+GMuqEtfCox0gFulyj9WU4tmJFibv+jSmwZbx3zJGuu3G/1a3pMBbGDA9De65U=
